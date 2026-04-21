@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { AuraRing, type AuraState } from "@/components/AuraRing";
+import { SideDial } from "@/components/SideDial";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,9 +26,14 @@ const STATUS_LABEL: Record<AuraState, string> = {
   responding: "Responding",
 };
 
+const MODES = ["AI", "Study", "Calm", "Pro"];
+const MODELS = ["OpenAI", "Google", "Local", "Other"];
+
 function Index() {
   const [introDone, setIntroDone] = useState(false);
   const [state, setState] = useState<AuraState>("idle");
+  const [mode, setMode] = useState("AI");
+  const [model, setModel] = useState("OpenAI");
 
   // intro completes after the CSS animation
   useEffect(() => {
@@ -106,6 +112,21 @@ function Index() {
       {introDone && (
         <>
           <div className="aura-hint">Hold space or press to speak</div>
+
+          <SideDial
+            side="left"
+            label="Mode"
+            options={MODES}
+            value={mode}
+            onChange={setMode}
+          />
+          <SideDial
+            side="right"
+            label="Model"
+            options={MODELS}
+            value={model}
+            onChange={setModel}
+          />
 
           <button
             data-cycle
