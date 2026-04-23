@@ -14,6 +14,7 @@ interface Props {
  */
 export function SideDial({ side, label, options, value, onChange }: Props) {
   const [visible, setVisible] = useState(false);
+  const [dragStart, setDragStart] = useState<number | null>(null);
 
   // arc angles for items, centered vertically
   const count = options.length;
@@ -21,19 +22,40 @@ export function SideDial({ side, label, options, value, onChange }: Props) {
   const start = -arcSpan / 2;
   const step = count > 1 ? arcSpan / (count - 1) : 0;
   const radius = 130;
+  const selectOffset = (direction: number) => {
+    const current = options.indexOf(value);
+    const next = (current + direction + options.length) % options.length;
+    onChange(options[next]);
+  };
 
   return (
     <>
       {/* invisible hover hot-zone at the screen edge */}
       <div
+        data-cycle
         className={`aura-edge-zone aura-edge-${side}`}
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
       />
       <div
+        data-cycle
         className={`aura-dial aura-dial-${side} ${visible ? "is-visible" : ""}`}
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
+        onWheel={(e) => {
+          e.preventDefault();
+          selectOffset(e.deltaY > 0 ? 1 : -1);
+        }}
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          setDragStart(e.clientY);
+        }}
+        onPointerMove={(e) => {
+          if (dragStart === null || Math.abs(e.clientY - dragStart) < 28) return;
+          selectOffset(e.clientY > dragStart ? 1 : -1);
+          setDragStart(e.clientY);
+        }}
+        onPointerUp={() => setDragStart(null)}
         aria-label={label}
       >
         <div className="aura-dial-label">{label}</div>

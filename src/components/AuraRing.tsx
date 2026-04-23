@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { RingEffects } from "@/components/RingEffects";
 
 type AuraState = "idle" | "listening" | "processing" | "responding";
 
@@ -200,9 +201,7 @@ export function AuraRing({ state }: Props) {
 
   return (
     <div className="aura-ring-wrap">
-      <div className="aura-shadow" />
-      <div className="aura-glow-outer" />
-      <div className="aura-glow" />
+      <RingEffects />
       <canvas ref={canvasRef} className="relative h-full w-full" aria-hidden="true" />
     </div>
   );

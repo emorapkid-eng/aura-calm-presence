@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuraRing, type AuraState } from "@/components/AuraRing";
 import { SideDial } from "@/components/SideDial";
+import { JarvisProvider, type JarvisMode, type JarvisModel, useJarvis } from "@/state/jarvis-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,7 +15,11 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: Index,
+  component: () => (
+    <JarvisProvider>
+      <Index />
+    </JarvisProvider>
+  ),
 });
 
 const STATES: AuraState[] = ["idle", "listening", "processing", "responding"];
@@ -26,14 +31,17 @@ const STATUS_LABEL: Record<AuraState, string> = {
   responding: "Responding",
 };
 
-const MODES = ["AI", "Study", "Calm", "Pro"];
-const MODELS = ["OpenAI", "Google", "Local", "Other"];
+const MODES: JarvisMode[] = ["AI", "Study", "Calm", "Pro"];
+const MODELS: JarvisModel[] = ["OpenAI", "Google", "Local", "Other"];
 
 function Index() {
   const [introDone, setIntroDone] = useState(false);
-  const [state, setState] = useState<AuraState>("idle");
-  const [mode, setMode] = useState("AI");
-  const [model, setModel] = useState("OpenAI");
+  const { state, mode, model, setMode, setModel, setVisualState, sendCommand } = useJarvis();
+  const stateRef = useRef<AuraState>(state);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   // intro completes after the CSS animation
   useEffect(() => {
@@ -47,23 +55,24 @@ function Index() {
 
     const startListen = () => {
       if (releaseTimer) clearTimeout(releaseTimer);
-      setState("listening");
+      setVisualState("listening");
     };
 
     const stopListen = () => {
-      setState("processing");
+      void sendCommand("voice-input");
+      setVisualState("processing");
       releaseTimer = setTimeout(() => {
-        setState("responding");
-        releaseTimer = setTimeout(() => setState("idle"), 2400);
+        setVisualState("responding");
+        releaseTimer = setTimeout(() => setVisualState("idle"), 2400);
       }, 1400);
     };
 
     const onDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement)?.dataset.cycle) return;
+      if ((e.target as HTMLElement)?.closest("[data-cycle]")) return;
       startListen();
     };
     const onUp = () => {
-      if (state === "listening" || stateRef.current === "listening") stopListen();
+      if (stateRef.current === "listening") stopListen();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space" && !e.repeat) {
@@ -74,11 +83,6 @@ function Index() {
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.code === "Space") stopListen();
     };
-
-    // tiny ref-trick to read latest state in pointerup
-    const stateRef = { current: state } as { current: AuraState };
-    const sync = () => (stateRef.current = state);
-    sync();
 
     window.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
@@ -91,12 +95,12 @@ function Index() {
       window.removeEventListener("keyup", onKeyUp);
       if (releaseTimer) clearTimeout(releaseTimer);
     };
-  }, [state]);
+  }, [sendCommand, setVisualState]);
 
   // allow clicking through states for demo without holding
   const cycleState = () => {
     const i = STATES.indexOf(state);
-    setState(STATES[(i + 1) % STATES.length]);
+    setVisualState(STATES[(i + 1) % STATES.length]);
   };
 
   return (
@@ -118,14 +122,14 @@ function Index() {
             label="Mode"
             options={MODES}
             value={mode}
-            onChange={setMode}
+              onChange={(next) => void setMode(next as JarvisMode)}
           />
           <SideDial
             side="right"
             label="Model"
             options={MODELS}
             value={model}
-            onChange={setModel}
+              onChange={(next) => void setModel(next as JarvisModel)}
           />
 
           <button
