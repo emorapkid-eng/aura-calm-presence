@@ -99,19 +99,21 @@ export function AuraRing({ state }: Props) {
 
       // === ring path with variable thickness sampling ===
       const points = 320;
+      // distortion strength fades fully at idle (e≈0) → perfect circle
+      const distort = Math.max(0, e - 0.02);
       const buildPath = (rOffset: number, distortMul: number) => {
         ctx.beginPath();
         for (let i = 0; i <= points; i++) {
           const a = (i / points) * Math.PI * 2;
 
-          // organic distortion: smooth-noise + low harmonics
+          // organic distortion: smooth-noise + low harmonics (gated on energy)
           const harm =
-            Math.sin(a * 3 + time * 0.32) * (0.4 + e * 0.9) +
-            Math.sin(a * 5 - time * 0.48) * (0.2 + e * 0.7);
-          const n = smoothNoise(a * 2.1, time * 0.55) * (1.4 + e * 3.8);
+            Math.sin(a * 3 + time * 0.32) * (0.9 * distort) +
+            Math.sin(a * 5 - time * 0.48) * (0.7 * distort);
+          const n = smoothNoise(a * 2.1, time * 0.55) * (3.8 * distort);
 
           const r =
-            baseR * breath * pulse + rOffset + (harm + n) * (1 + e * 3.2) * distortMul;
+            baseR * breath * pulse + rOffset + (harm + n) * (1 + distort * 3.2) * distortMul;
 
           const x = cx + Math.cos(a) * r;
           const y = cy + Math.sin(a) * r;
