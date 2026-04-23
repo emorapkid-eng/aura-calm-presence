@@ -17,6 +17,8 @@ export function AuraRing({ state }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stateRef = useRef<AuraState>(state);
   const energyRef = useRef(0);
+  const introStartRef = useRef<number | null>(null);
+  const INTRO_MS = 1300;
 
   useEffect(() => {
     stateRef.current = state;
