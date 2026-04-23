@@ -23,10 +23,11 @@ export const Route = createFileRoute("/")({
 });
 
 const STATUS_LABEL: Record<AuraState, string> = {
-  idle: "",
-  listening: "Listening",
-  processing: "Thinking",
-  responding: "Responding",
+  idle: "Ready",
+  listening: "Listening…",
+  thinking: "Thinking…",
+  processing: "Thinking…",
+  responding: "Responding…",
 };
 
 const MODES: JarvisMode[] = ["AI", "Study", "Calm", "Pro"];
