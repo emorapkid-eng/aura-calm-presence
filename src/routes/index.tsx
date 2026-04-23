@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AuraRing, type AuraState } from "@/components/AuraRing";
 import { SideDial } from "@/components/SideDial";
-import { JarvisProvider, useJarvis } from "@/state/jarvis-store";
+import { JarvisProvider, type JarvisMode, type JarvisModel, useJarvis } from "@/state/jarvis-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,8 +31,8 @@ const STATUS_LABEL: Record<AuraState, string> = {
   responding: "Responding",
 };
 
-const MODES = ["AI", "Study", "Calm", "Pro"];
-const MODELS = ["OpenAI", "Google", "Local", "Other"];
+const MODES: JarvisMode[] = ["AI", "Study", "Calm", "Pro"];
+const MODELS: JarvisModel[] = ["OpenAI", "Google", "Local", "Other"];
 
 function Index() {
   const [introDone, setIntroDone] = useState(false);
@@ -122,14 +122,14 @@ function Index() {
             label="Mode"
             options={MODES}
             value={mode}
-            onChange={setMode}
+              onChange={(next) => void setMode(next as JarvisMode)}
           />
           <SideDial
             side="right"
             label="Model"
             options={MODELS}
             value={model}
-            onChange={setModel}
+              onChange={(next) => void setModel(next as JarvisModel)}
           />
 
           <button
