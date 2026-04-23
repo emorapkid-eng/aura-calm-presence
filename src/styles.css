@@ -285,7 +285,7 @@
   50%      { transform: scale(1.03); opacity: 1; }
 }
 
-/* status text */
+/* status text — always visible, fades on change */
 .aura-status {
   position: absolute;
   bottom: 7vh;
@@ -295,9 +295,18 @@
   font-weight: 300;
   letter-spacing: 0.55em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--aura-ink-soft) 48%, transparent);
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  color: color-mix(in oklab, var(--aura-ink-soft) 55%, transparent);
   z-index: 4;
+  min-height: 1em;
+  padding-left: 0.55em; /* compensate tracking */
+}
+.aura-status-text {
+  display: inline-block;
+  animation: aura-status-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes aura-status-in {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .aura-hint {
