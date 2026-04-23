@@ -74,21 +74,21 @@ export function AuraRing({ state }: Props) {
       const cy = height / 2;
       const baseR = Math.min(width, height) * 0.34;
 
-      const target =
-        stateRef.current === "idle"
-          ? 0.08
-          : stateRef.current === "listening"
-            ? 0.45
-            : stateRef.current === "processing"
-              ? 0.6
-              : 0.38;
+      const isIdle = stateRef.current === "idle";
+      const target = isIdle
+        ? 0
+        : stateRef.current === "listening"
+          ? 0.45
+          : stateRef.current === "processing"
+            ? 0.6
+            : 0.38;
 
       // slower, more deliberate easing — feels intelligent
       energyRef.current += (target - energyRef.current) * 0.022;
       const e = energyRef.current;
 
-      // breathing scale (very gentle)
-      const breath = 1 + Math.sin(time * 0.5) * 0.014 + e * 0.028;
+      // breathing scale (very gentle) — pure scale, no distortion in idle
+      const breath = 1 + Math.sin(time * 0.5) * 0.012 + e * 0.028;
       // responding pulse — soft rhythmic
       const pulse =
         stateRef.current === "responding"
