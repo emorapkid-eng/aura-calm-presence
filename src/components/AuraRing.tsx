@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { RingEffects } from "@/components/RingEffects";
 
-type AuraState = "idle" | "listening" | "processing" | "responding";
+type AuraState = "idle" | "listening" | "thinking" | "processing" | "responding";
 
 interface Props {
   state: AuraState;
