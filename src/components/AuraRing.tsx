@@ -145,6 +145,10 @@ export function AuraRing({ state }: Props) {
       };
       const points = 320;
 
+      // ===== Ring body (layers 1-4) — gated by intro clip during draw-in =====
+      ctx.save();
+      applyIntroClip();
+
       // === LAYER 1: blurred halo ===
       ctx.save();
       ctx.filter = "blur(6px)";
@@ -198,6 +202,52 @@ export function AuraRing({ state }: Props) {
       ctx.lineWidth = 1.0;
       ctx.strokeStyle = `rgba(10,10,10,${0.42 + e * 0.18})`;
       ctx.stroke();
+
+      ctx.restore(); // end intro clip
+
+      // === INTRO LEADING EDGE — glowing head + soft trail ===
+      if (introActive) {
+        const headAngle = introEnd;
+        const hx = cx + Math.cos(headAngle) * baseR;
+        const hy = cy + Math.sin(headAngle) * baseR;
+        // visibility fades out near the end so the handoff is seamless
+        const headAlpha = Math.sin(introT * Math.PI); // 0 → 1 → 0
+
+        // soft trail: short bright arc behind the head
+        ctx.save();
+        ctx.lineCap = "round";
+        const trailLen = Math.PI * 0.18;
+        const trailStart = Math.max(introStart, headAngle - trailLen);
+        const tx0 = cx + Math.cos(trailStart) * baseR;
+        const ty0 = cy + Math.sin(trailStart) * baseR;
+        const trailGrad = ctx.createLinearGradient(tx0, ty0, hx, hy);
+        trailGrad.addColorStop(0, "rgba(255,255,255,0)");
+        trailGrad.addColorStop(1, `rgba(255,255,255,${0.7 * headAlpha})`);
+        ctx.beginPath();
+        const trailSub = 24;
+        for (let k = 0; k <= trailSub; k++) {
+          const a = trailStart + ((headAngle - trailStart) * k) / trailSub;
+          const x = cx + Math.cos(a) * baseR;
+          const y = cy + Math.sin(a) * baseR;
+          if (k === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = trailGrad;
+        ctx.lineWidth = 4.5;
+        ctx.globalCompositeOperation = "screen";
+        ctx.stroke();
+
+        // glowing head
+        const headGlow = ctx.createRadialGradient(hx, hy, 0, hx, hy, 36);
+        headGlow.addColorStop(0, `rgba(255,255,255,${0.9 * headAlpha})`);
+        headGlow.addColorStop(0.4, `rgba(255,255,255,${0.35 * headAlpha})`);
+        headGlow.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = headGlow;
+        ctx.beginPath();
+        ctx.arc(hx, hy, 36, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
 
       // === LAYER 5: rotating light arc(s) — STATE-DRIVEN ALIVENESS ===
       // Always present (even idle) — keeps ring "alive" without deforming it.
