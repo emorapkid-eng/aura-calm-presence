@@ -157,10 +157,10 @@ export function AuraRing({ state }: Props) {
         for (let k = 0; k <= sub; k++) {
           const a = a0 + (a1 - a0) * (k / sub);
           const harm =
-            Math.sin(a * 3 + time * 0.32) * (0.4 + e * 0.9) +
-            Math.sin(a * 5 - time * 0.48) * (0.2 + e * 0.7);
-          const n = smoothNoise(a * 2.1, time * 0.55) * (1.4 + e * 3.8);
-          const r = baseR * breath * pulse + (harm + n) * (1 + e * 3.2);
+            Math.sin(a * 3 + time * 0.32) * (0.9 * distort) +
+            Math.sin(a * 5 - time * 0.48) * (0.7 * distort);
+          const n = smoothNoise(a * 2.1, time * 0.55) * (3.8 * distort);
+          const r = baseR * breath * pulse + (harm + n) * (1 + distort * 3.2);
           const x = cx + Math.cos(a) * r;
           const y = cy + Math.sin(a) * r;
           if (k === 0) ctx.moveTo(x, y);
