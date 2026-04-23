@@ -68,7 +68,7 @@ function Index() {
     };
 
     const onDown = (e: PointerEvent) => {
-      if ((e.target as HTMLElement)?.dataset.cycle) return;
+      if ((e.target as HTMLElement)?.closest("[data-cycle]")) return;
       startListen();
     };
     const onUp = () => {

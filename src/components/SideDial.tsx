@@ -32,11 +32,13 @@ export function SideDial({ side, label, options, value, onChange }: Props) {
     <>
       {/* invisible hover hot-zone at the screen edge */}
       <div
+        data-cycle
         className={`aura-edge-zone aura-edge-${side}`}
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
       />
       <div
+        data-cycle
         className={`aura-dial aura-dial-${side} ${visible ? "is-visible" : ""}`}
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
