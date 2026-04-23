@@ -101,6 +101,27 @@ export function AuraRing({ state }: Props) {
 
       ctx.clearRect(0, 0, width, height);
 
+      // === INTRO DRAW-IN PROGRESS (clockwise reveal) ===
+      if (introStartRef.current === null) introStartRef.current = tms;
+      const introT = Math.min(1, (tms - introStartRef.current) / INTRO_MS);
+      // ease-in-out cubic
+      const introEase =
+        introT < 0.5 ? 4 * introT * introT * introT : 1 - Math.pow(-2 * introT + 2, 3) / 2;
+      const introActive = introT < 1;
+      // clockwise from top (-90deg)
+      const introStart = -Math.PI / 2;
+      const introEnd = introStart + Math.PI * 2 * introEase;
+
+      const applyIntroClip = () => {
+        if (!introActive) return;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        // wedge that reveals from top, clockwise — slightly larger than ring
+        ctx.arc(cx, cy, baseR * 2, introStart, introEnd, false);
+        ctx.closePath();
+        ctx.clip();
+      };
+
       // distortion ONLY in thinking/processing — keeps circle perfect otherwise
       const distort =
         s === "thinking" || s === "processing" ? Math.max(0, e - 0.05) * 0.6 : 0;
