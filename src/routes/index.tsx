@@ -72,12 +72,10 @@ function Index() {
             onChange={(next) => void setModel(next as JarvisModel)}
           />
 
-          <div
-            className="aura-status"
-            style={{ opacity: label ? 1 : 0 }}
-            aria-live="polite"
-          >
-            {label}
+          <div className="aura-status" aria-live="polite">
+            <span key={state} className="aura-status-text">
+              {label}
+            </span>
           </div>
         </>
       )}
