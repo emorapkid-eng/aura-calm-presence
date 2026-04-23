@@ -74,21 +74,21 @@ export function AuraRing({ state }: Props) {
       const cy = height / 2;
       const baseR = Math.min(width, height) * 0.34;
 
-      const target =
-        stateRef.current === "idle"
-          ? 0.08
-          : stateRef.current === "listening"
-            ? 0.45
-            : stateRef.current === "processing"
-              ? 0.6
-              : 0.38;
+      const isIdle = stateRef.current === "idle";
+      const target = isIdle
+        ? 0
+        : stateRef.current === "listening"
+          ? 0.45
+          : stateRef.current === "processing"
+            ? 0.6
+            : 0.38;
 
       // slower, more deliberate easing — feels intelligent
       energyRef.current += (target - energyRef.current) * 0.022;
       const e = energyRef.current;
 
-      // breathing scale (very gentle)
-      const breath = 1 + Math.sin(time * 0.5) * 0.014 + e * 0.028;
+      // breathing scale (very gentle) — pure scale, no distortion in idle
+      const breath = 1 + Math.sin(time * 0.5) * 0.012 + e * 0.028;
       // responding pulse — soft rhythmic
       const pulse =
         stateRef.current === "responding"
@@ -99,19 +99,21 @@ export function AuraRing({ state }: Props) {
 
       // === ring path with variable thickness sampling ===
       const points = 320;
+      // distortion strength fades fully at idle (e≈0) → perfect circle
+      const distort = Math.max(0, e - 0.02);
       const buildPath = (rOffset: number, distortMul: number) => {
         ctx.beginPath();
         for (let i = 0; i <= points; i++) {
           const a = (i / points) * Math.PI * 2;
 
-          // organic distortion: smooth-noise + low harmonics
+          // organic distortion: smooth-noise + low harmonics (gated on energy)
           const harm =
-            Math.sin(a * 3 + time * 0.32) * (0.4 + e * 0.9) +
-            Math.sin(a * 5 - time * 0.48) * (0.2 + e * 0.7);
-          const n = smoothNoise(a * 2.1, time * 0.55) * (1.4 + e * 3.8);
+            Math.sin(a * 3 + time * 0.32) * (0.9 * distort) +
+            Math.sin(a * 5 - time * 0.48) * (0.7 * distort);
+          const n = smoothNoise(a * 2.1, time * 0.55) * (3.8 * distort);
 
           const r =
-            baseR * breath * pulse + rOffset + (harm + n) * (1 + e * 3.2) * distortMul;
+            baseR * breath * pulse + rOffset + (harm + n) * (1 + distort * 3.2) * distortMul;
 
           const x = cx + Math.cos(a) * r;
           const y = cy + Math.sin(a) * r;
@@ -155,10 +157,10 @@ export function AuraRing({ state }: Props) {
         for (let k = 0; k <= sub; k++) {
           const a = a0 + (a1 - a0) * (k / sub);
           const harm =
-            Math.sin(a * 3 + time * 0.32) * (0.4 + e * 0.9) +
-            Math.sin(a * 5 - time * 0.48) * (0.2 + e * 0.7);
-          const n = smoothNoise(a * 2.1, time * 0.55) * (1.4 + e * 3.8);
-          const r = baseR * breath * pulse + (harm + n) * (1 + e * 3.2);
+            Math.sin(a * 3 + time * 0.32) * (0.9 * distort) +
+            Math.sin(a * 5 - time * 0.48) * (0.7 * distort);
+          const n = smoothNoise(a * 2.1, time * 0.55) * (3.8 * distort);
+          const r = baseR * breath * pulse + (harm + n) * (1 + distort * 3.2);
           const x = cx + Math.cos(a) * r;
           const y = cy + Math.sin(a) * r;
           if (k === 0) ctx.moveTo(x, y);

@@ -388,16 +388,19 @@
 }
 .aura-dial-item:hover {
   color: var(--aura-ink-soft);
+  transform: translate(var(--tx, 0), var(--ty, 0)) translate(-50%, -50%) scale(1.05);
 }
 .aura-dial-item.is-active {
-  color: color-mix(in oklab, var(--aura-ink) 72%, var(--aura-ink-soft));
+  color: color-mix(in oklab, var(--aura-ink) 80%, var(--aura-ink-soft));
   font-weight: 400;
+  text-shadow: 0 0 12px color-mix(in oklab, var(--aura-ink) 18%, transparent);
 }
 .aura-dial-dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: color-mix(in oklab, var(--aura-ink) 72%, var(--aura-ink-soft));
+  background: color-mix(in oklab, var(--aura-ink) 80%, var(--aura-ink-soft));
   display: inline-block;
+  box-shadow: 0 0 8px color-mix(in oklab, var(--aura-ink) 25%, transparent);
 }
 
