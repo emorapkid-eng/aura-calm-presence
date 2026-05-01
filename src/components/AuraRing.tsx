@@ -325,6 +325,70 @@ export function AuraRing({ state }: Props) {
       ctx.stroke();
       ctx.restore();
 
+      // === LAYER 7: orbiting particles — subtle motes traveling along the ring ===
+      if (!introActive) {
+        const particleCount = isIdle ? 3 : s === "listening" ? 5 : s === "responding" ? 4 : 7;
+        const particleSpeed =
+          s === "thinking" || s === "processing" ? 0.8 : isIdle ? 0.18 : 0.4;
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        for (let p = 0; p < particleCount; p++) {
+          const phase = (p / particleCount) * Math.PI * 2;
+          const wobble = Math.sin(time * 0.7 + p) * 0.4;
+          const a = time * particleSpeed + phase + wobble;
+          const r = baseR * breath;
+          const px = cx + Math.cos(a) * r;
+          const py = cy + Math.sin(a) * r;
+          const twinkle = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * 1.6 + p * 1.7));
+          const size = 2.2 + e * 1.4;
+          const g = ctx.createRadialGradient(px, py, 0, px, py, size * 6);
+          g.addColorStop(0, `rgba(255,255,255,${0.85 * twinkle})`);
+          g.addColorStop(0.4, `rgba(255,255,255,${0.25 * twinkle})`);
+          g.addColorStop(1, "rgba(255,255,255,0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(px, py, size * 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // === LAYER 8: periodic ripple pulse — soft expanding circle ===
+      if (!introActive) {
+        const ripplePeriod = isIdle ? 5.5 : s === "listening" ? 2.4 : 3.2;
+        const rippleT = (time % ripplePeriod) / ripplePeriod;
+        const rippleEase = 1 - Math.pow(1 - rippleT, 2);
+        const rippleR = baseR * (1 + rippleEase * 0.18);
+        const rippleAlpha = (1 - rippleT) * (isIdle ? 0.18 : 0.28);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, rippleR, 0, Math.PI * 2);
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = `rgba(10,10,10,${rippleAlpha})`;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // === LAYER 9: inner subtle rotating dashed ring (depth + life) ===
+      if (!introActive) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(time * (isIdle ? 0.04 : 0.12));
+        ctx.beginPath();
+        const innerR = baseR * 0.82;
+        const dashes = 60;
+        for (let d = 0; d < dashes; d++) {
+          const a0 = (d / dashes) * Math.PI * 2;
+          const a1 = a0 + (Math.PI * 2) / dashes / 2.4;
+          ctx.moveTo(Math.cos(a0) * innerR, Math.sin(a0) * innerR);
+          ctx.arc(0, 0, innerR, a0, a1);
+        }
+        ctx.lineWidth = 0.8;
+        ctx.strokeStyle = `rgba(10,10,10,${0.08 + e * 0.12})`;
+        ctx.stroke();
+        ctx.restore();
+      }
+
       raf = requestAnimationFrame(draw);
     };
 
