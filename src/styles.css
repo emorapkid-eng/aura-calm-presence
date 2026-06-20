@@ -96,8 +96,11 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
-  --aura-surface: oklch(0.972 0.002 286);
-  --aura-surface-bright: oklch(0.992 0.001 286);
+  --aura-surface: oklch(0.955 0.006 80);          /* warm pearl */
+  --aura-surface-bright: oklch(0.985 0.004 90);   /* soft cream highlight */
+  --aura-surface-deep: oklch(0.88 0.012 70);      /* dusty taupe edge */
+  --aura-tint-warm: oklch(0.86 0.045 60);         /* amber dust */
+  --aura-tint-cool: oklch(0.84 0.04 250);         /* powder blue dust */
   --aura-ink: oklch(0.12 0 0);
   --aura-ink-soft: oklch(0.39 0.012 260);
   --aura-ink-muted: oklch(0.66 0.016 260);
